@@ -2,7 +2,7 @@
 
 A retrieval span can be described in more than one attribute convention, and the conventions are not
 interchangeable. This repo settles which ones a deployment actually reads, by sending the same
-retrieval nine different ways over OpenTelemetry and reading back what was stored for each.
+retrieval ten different ways over OpenTelemetry and reading back what was stored for each.
 
 It exists because the documented minimum for a retriever span can be satisfied in a way that still
 produces an empty span, with nothing in the response to say so.
@@ -57,6 +57,7 @@ span nested under it. Only the retrieval span's attributes differ.
 | v7 | as v6, typed with `gen_ai.operation.name` instead of `db.operation` | the query | the documents |
 | v8 | no OpenInference kind, values shaped as in v1 | request rejected | request rejected |
 | v9 | as v2, with each document's id inside `metadata` | the query | the documents, ids intact |
+| v10 | as v6, with each document's id inside `metadata` | the query | the documents, ids intact |
 
 A rendered run is committed under `evidence/`, so the results can be read without a deployment to
 hand.
@@ -69,9 +70,12 @@ Two shapes work, and either is fine to standardise on:
   `output.value` as a JSON array, or as an object with a `documents` key. `retrieval.documents` is
   read only when it arrives as a genuine list, and an OpenTelemetry array attribute can hold only
   plain strings, never objects, which is why v4 lands empty and v5 is refused outright.
-- **Drop the OpenInference kind** (v6 or v7). Send `gen_ai.input.messages` as a one-message array and
-  `gen_ai.output.messages` as a one-message array whose `content` is the array of documents. Nothing
-  rewrites those attributes once the OpenInference kind is absent.
+- **Drop the OpenInference kind** (v6, v7 or v10). Send `gen_ai.input.messages` as a one-message array
+  and `gen_ai.output.messages` as a one-message array whose `content` is the array of documents.
+  Nothing rewrites those attributes once the OpenInference kind is absent.
+
+The `metadata` placement for document ids was measured on both conventions, v9 and v10, so it is not
+specific to either.
 
 v1 is the shape that reads most naturally from the documented minimum, and it is the one that stores
 nothing. v8 is v1 with the OpenInference kind removed, and it shows that the kind was the only thing

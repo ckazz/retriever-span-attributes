@@ -177,6 +177,19 @@ VARIANTS: dict[str, dict[str, Any]] = {
         "expect_output": "doc1",
         "why": "metadata is one of the three fields a document keeps, so it is where an id survives",
     },
+    "v10": {
+        "summary": "as v6 but each document carries its id inside metadata",
+        "attributes": {
+            "db.operation": "query",
+            "gen_ai.input.messages": json.dumps([{"role": "user", "content": QUERY}]),
+            "gen_ai.output.messages": json.dumps(
+                [{"role": "assistant", "content": DOCUMENTS_WITH_METADATA}]
+            ),
+        },
+        "expect_input": QUERY,
+        "expect_output": "doc1",
+        "why": "confirms the metadata placement survives on this convention too, not only on v9's",
+    },
 }
 
 RETRIEVER_SPAN_NAME = "query get_support_docs"
@@ -452,11 +465,11 @@ def live(variant: str, api: Galileo, project: str, log_stream_base: str, run_tag
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--mode", choices=("inspect", "live"), default="inspect")
-    parser.add_argument("--only", nargs="+", choices=sorted(VARIANTS), metavar="VARIANT")
+    parser.add_argument("--only", nargs="+", choices=list(VARIANTS), metavar="VARIANT")
     parser.add_argument("--brief", action="store_true", help="omit the full payload and record dumps")
     args = parser.parse_args()
 
-    variants = args.only or sorted(VARIANTS)
+    variants = args.only or list(VARIANTS)
 
     if args.mode == "inspect":
         for variant in variants:
