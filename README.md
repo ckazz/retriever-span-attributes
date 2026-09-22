@@ -2,7 +2,7 @@
 
 A retrieval span can be described in more than one attribute convention, and the conventions are not
 interchangeable. This repo settles which ones a deployment actually reads, by sending the same
-retrieval ten different ways over OpenTelemetry and reading back what was stored for each.
+retrieval eleven different ways over OpenTelemetry and reading back what was stored for each.
 
 It exists because the documented minimum for a retriever span can be satisfied in a way that still
 produces an empty span, with nothing in the response to say so.
@@ -31,6 +31,22 @@ Two further constraints apply whichever convention is used:
   scalar values are kept: strings, numbers and booleans survive, and anything nested is discarded
   without an error. So a relevance score is fine as a number, but a nested object is not.
 
+### What belongs in metadata
+
+`metadata` is the only place a document can carry anything beyond its text, so it takes the
+application's own document id, a relevance or rerank score, a source path, a chunk index, a flag.
+Values have to be single strings, numbers or booleans. A number stays a number on the round trip, so
+a score does not become a string. There is no fixed vocabulary: no key name is treated specially, and
+none is required.
+
+Two things to know before concluding a value was lost. A `metadata` value that is an object or an
+array is discarded silently, and so is the whole of `metadata` if it arrives as a JSON string rather
+than an object; neither produces an error or a rejection. And the per-document **Relevant**,
+**Attributed** and **Utilization** labels shown in the interface are computed by the platform's own
+chunk-level metrics and matched to documents by position. They are not read from `metadata`, so a
+score sent in `metadata` will not appear there. To confirm what was actually stored, read the span
+back through the API, which is what this harness does.
+
 ## Three outcomes, and the third one is quiet
 
 A convention can be read as intended, or ignored so the span lands with empty content, or **rejected
@@ -58,6 +74,7 @@ span nested under it. Only the retrieval span's attributes differ.
 | v8 | no OpenInference kind, values shaped as in v1 | request rejected | request rejected |
 | v9 | as v2, with each document's id inside `metadata` | the query | the documents, ids intact |
 | v10 | as v6, with each document's id inside `metadata` | the query | the documents, ids intact |
+| v11 | as v10, with a relevance score and other metadata values, one of them nested | the query | the documents, every scalar intact, the nested value gone |
 
 A rendered run is committed under `evidence/`, so the results can be read without a deployment to
 hand.
@@ -75,7 +92,7 @@ Two shapes work, and either is fine to standardise on:
   Nothing rewrites those attributes once the OpenInference kind is absent.
 
 The `metadata` placement for document ids was measured on both conventions, v9 and v10, so it is not
-specific to either.
+specific to either. v11 extends that to a fuller `metadata` payload, including a relevance score.
 
 v1 is the shape that reads most naturally from the documented minimum, and it is the one that stores
 nothing. v8 is v1 with the OpenInference kind removed, and it shows that the kind was the only thing

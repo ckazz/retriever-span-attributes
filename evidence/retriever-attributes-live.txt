@@ -1,6 +1,6 @@
 
 == v1: as reported: OpenInference kind, with the query and documents on the gen_ai.* attributes 
-  log stream:  retriever-attrs-v1-055ee859
+  log stream:  retriever-attrs-v1-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -21,7 +21,7 @@
     ok    output is blank, as expected
 
 == v2: OpenInference kind, query and documents on input.value and output.value =
-  log stream:  retriever-attrs-v2-055ee859
+  log stream:  retriever-attrs-v2-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -51,7 +51,7 @@
     ok    output carries the documents
 
 == v3: OpenInference kind, output.value wrapping the list under a documents key 
-  log stream:  retriever-attrs-v3-055ee859
+  log stream:  retriever-attrs-v3-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -81,7 +81,7 @@
     ok    output carries the documents
 
 == v4: OpenInference kind, documents as a JSON string on retrieval.documents ===
-  log stream:  retriever-attrs-v4-055ee859
+  log stream:  retriever-attrs-v4-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -102,11 +102,11 @@
     ok    output is blank, as expected
 
 == v5: OpenInference kind, documents as an array attribute of strings on retrieval.documents 
-  log stream:  retriever-attrs-v5-055ee859
+  log stream:  retriever-attrs-v5-055ef382
 
   the request was refused, and the HTTP status was a success anyway:
     spans rejected:  2 of the 2 sent
-    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "9e6b5252-9de9-4f96-9d30-158c3b3d04a1", "trace_name": "support assistant turn", "field": ["retriever...
+    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "841b27fe-5d42-412e-84da-473607c44950", "trace_name": "support assistant turn", "field": ["retriever...
 
   spans the log stream holds after 20s:  <none>
 
@@ -116,7 +116,7 @@
     ok    the healthy parent span did not land either
 
 == v6: no OpenInference kind, message lists on the gen_ai.* attributes, documents as the content 
-  log stream:  retriever-attrs-v6-055ee859
+  log stream:  retriever-attrs-v6-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -146,7 +146,7 @@
     ok    output carries the documents
 
 == v7: as v6 but typed explicitly with gen_ai.operation.name instead of db.operation 
-  log stream:  retriever-attrs-v7-055ee859
+  log stream:  retriever-attrs-v7-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -176,11 +176,11 @@
     ok    output carries the documents
 
 == v8: no OpenInference kind, but the query and documents sent the way v1 sends them 
-  log stream:  retriever-attrs-v8-055ee859
+  log stream:  retriever-attrs-v8-055ef382
 
   the request was refused, and the HTTP status was a success anyway:
     spans rejected:  2 of the 2 sent
-    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "73c7e3b1-85a6-42b8-afe5-b9f2586f3227", "trace_name": "support assistant turn", "field": ["retriever...
+    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "3ac87d99-4ba8-48d5-923e-063ce3c124e7", "trace_name": "support assistant turn", "field": ["retriever...
 
   spans the log stream holds after 20s:  <none>
 
@@ -190,7 +190,7 @@
     ok    the healthy parent span did not land either
 
 == v9: as v2 but each document carries its id inside metadata ==================
-  log stream:  retriever-attrs-v9-055ee859
+  log stream:  retriever-attrs-v9-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -224,7 +224,7 @@
     ok    output carries the documents
 
 == v10: as v6 but each document carries its id inside metadata =================
-  log stream:  retriever-attrs-v10-055ee859
+  log stream:  retriever-attrs-v10-055ef382
 
   what was stored on the retriever span:
     type   :  retriever
@@ -257,6 +257,49 @@
     ok    input carries the query
     ok    output carries the documents
 
+== v11: as v10 but metadata carries a relevance score, more scalars, and one nested value 
+  log stream:  retriever-attrs-v11-055ef382
+
+  what was stored on the retriever span:
+    type   :  retriever
+    input  :  How do I reset my password?
+    output :  [{"content":"A password reset can be started from the account settings page","metadata":{"id"...
+
+  the stored span, as the read API returns it:
+{
+  "name": "query get_support_docs",
+  "type": "retriever",
+  "input": "How do I reset my password?",
+  "output": [
+    {
+      "content": "A password reset can be started from the account settings page",
+      "metadata": {
+        "id": "doc1",
+        "relevance_score": 0.93,
+        "source": "kb://support/passwords/doc1",
+        "chunk_index": 0,
+        "reranked": true
+      }
+    },
+    {
+      "content": "The reset link expires after fifteen minutes and can be requested again",
+      "metadata": {
+        "id": "doc2",
+        "relevance_score": 0.71,
+        "source": "kb://support/passwords/doc2",
+        "chunk_index": 1,
+        "reranked": true
+      }
+    }
+  ]
+}
+
+    ok    nothing in the export request was refused
+    ok    span is typed as a retriever
+    ok    input carries the query
+    ok    output carries the documents
+    ok    output does not carry 'support-kb'
+
 == SUMMARY =====================================================================
   v1  PASS  nothing stored     as reported: OpenInference kind, with the query and documents on the gen_ai.* attributes
   v2  PASS  documents stored   OpenInference kind, query and documents on input.value and output.value
@@ -268,5 +311,6 @@
   v8  PASS  request rejected   no OpenInference kind, but the query and documents sent the way v1 sends them
   v9  PASS  documents stored   as v2 but each document carries its id inside metadata
   v10  PASS  documents stored   as v6 but each document carries its id inside metadata
+  v11  PASS  documents stored   as v10 but metadata carries a relevance score, more scalars, and one nested value
 
-  project retriever-span-attributes, log streams suffixed -055ee859
+  project retriever-span-attributes, log streams suffixed -055ef382

@@ -66,12 +66,30 @@ DOCUMENTS = [
 # own id is dropped from the top level and has to travel inside metadata to survive.
 DOCUMENTS_WITH_METADATA = [{"content": d["content"], "metadata": {"id": d["id"]}} for d in DOCUMENTS]
 
+# Only scalar metadata values are kept. This set mixes all four accepted types with one
+# nested value, so a single run shows which keys come back and which vanish.
+DOCUMENTS_WITH_RICH_METADATA = [
+    {
+        "content": d["content"],
+        "metadata": {
+            "id": d["id"],
+            "relevance_score": score,
+            "source": f"kb://support/passwords/{d['id']}",
+            "chunk_index": index,
+            "reranked": True,
+            "provenance": {"index": "support-kb", "revision": 4},
+        },
+    }
+    for index, (d, score) in enumerate(zip(DOCUMENTS, (0.93, 0.71)))
+]
+
 # Each variant differs only in the attributes on the retriever span. The parent
 # agent span is identical everywhere so the retrieval always sits in the same
 # place in the tree.
 #
 #   expect_input     substring required in the stored span input, or None for blank
 #   expect_output    substring required in the stored span output, or None for blank
+#   expect_output_absent  optional substring that must NOT appear in the stored output
 #   expect_rejected  set instead of the two above when the whole export request is
 #                    expected to be refused at validation, so nothing lands at all
 VARIANTS: dict[str, dict[str, Any]] = {
@@ -202,6 +220,23 @@ VARIANTS: dict[str, dict[str, Any]] = {
         "expect_input": QUERY,
         "expect_output": "doc1",
         "why": "confirms the metadata placement survives on this convention too, not only on v9's",
+    },
+    "v11": {
+        "summary": "as v10 but metadata carries a relevance score, more scalars, and one nested value",
+        "attributes": {
+            "db.operation": "query",
+            "gen_ai.input.messages": json.dumps([{"role": "user", "content": QUERY}]),
+            "gen_ai.output.messages": json.dumps(
+                [{"role": "assistant", "content": DOCUMENTS_WITH_RICH_METADATA}]
+            ),
+        },
+        "expect_input": QUERY,
+        "expect_output": "0.93",
+        "expect_output_absent": "support-kb",
+        "why": (
+            "a score has no field of its own, so metadata is the only place for it; the nested "
+            "provenance value measures what happens to a metadata value that is not a scalar"
+        ),
     },
 }
 
@@ -465,6 +500,9 @@ def live(variant: str, api: Galileo, project: str, log_stream_base: str, run_tag
         checks.append(("output is blank, as expected", output_text.strip() in ("", '""', "[]", '"[]"')))
     else:
         checks.append((f"output carries the documents", spec["expect_output"] in output_text))
+    if spec.get("expect_output_absent") is not None:
+        absent = spec["expect_output_absent"]
+        checks.append((f"output does not carry {absent!r}", absent not in output_text))
 
     print()
     for label, ok in checks:
