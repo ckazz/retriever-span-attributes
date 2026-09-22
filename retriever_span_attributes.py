@@ -16,6 +16,19 @@ on the floor. Variants marked "rejected" below assert exactly that.
     live mode               posts them and reads back the stored span input,
                             output and span type, then checks expectations.
 
+Every result here was measured through these endpoints, and nothing else:
+
+    POST /otel/v1/traces                   ingest, one export request per variant
+    POST /projects/paginated               resolve the project by name
+    GET  /projects/{id}/log_streams        resolve the variant's log stream
+    POST /projects/{id}/spans/search       read the stored span back
+
+Note what that does and does not cover. Ingest is exercised by posting OTLP
+directly over HTTP, so the attribute values are the ones that arrive at the
+endpoint. An application reaching the same endpoint through an OTel SDK exporter,
+or through a gateway of its own, has upstream steps that this harness does not
+see and cannot vouch for.
+
 Usage:
     python3 retriever_span_attributes.py
     python3 retriever_span_attributes.py --mode live

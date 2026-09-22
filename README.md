@@ -88,6 +88,26 @@ Two ways to have the span recognised as a retrieval, both verified: `db.operatio
 span can be correctly typed as a retrieval, with the blue document icon, and still be empty. The icon
 confirms typing worked, nothing more.
 
+### What this was measured through, and what that leaves untested
+
+Four endpoints, and nothing else:
+
+| endpoint | what it does here |
+|----------|-------------------|
+| `POST /otel/v1/traces` | ingest, one export request per variant |
+| `POST /projects/paginated` | resolve the project by name |
+| `GET /projects/{id}/log_streams` | resolve the variant's log stream |
+| `POST /projects/{id}/spans/search` | read the stored span back |
+
+Ingest is exercised by posting OTLP directly over HTTP, so the attribute values tested are the ones
+that arrive at the endpoint. That is deliberate, because it isolates the ingestion behaviour from any
+particular client. It also means an application reaching the same endpoint through an OpenTelemetry
+SDK exporter, or through a gateway of its own, has steps in front of it that this harness never sees.
+If a span still arrives empty after adopting one of the working shapes, the useful question is what
+the attributes look like on arrival at `/otel/v1/traces`, not what they looked like when they were set.
+
+The results were produced against a deployment reporting version 1.1124.0.
+
 ## Requirements
 
 Python 3.9 or newer, standard library only. There is nothing to install and no SDK version to pin.

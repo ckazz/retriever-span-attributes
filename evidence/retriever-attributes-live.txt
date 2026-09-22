@@ -1,6 +1,6 @@
 
 == v1: as reported: OpenInference kind, with the query and documents on the gen_ai.* attributes 
-  log stream:  retriever-attrs-v1-055ee269
+  log stream:  retriever-attrs-v1-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -21,7 +21,7 @@
     ok    output is blank, as expected
 
 == v2: OpenInference kind, query and documents on input.value and output.value =
-  log stream:  retriever-attrs-v2-055ee269
+  log stream:  retriever-attrs-v2-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -51,7 +51,7 @@
     ok    output carries the documents
 
 == v3: OpenInference kind, output.value wrapping the list under a documents key 
-  log stream:  retriever-attrs-v3-055ee269
+  log stream:  retriever-attrs-v3-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -81,7 +81,7 @@
     ok    output carries the documents
 
 == v4: OpenInference kind, documents as a JSON string on retrieval.documents ===
-  log stream:  retriever-attrs-v4-055ee269
+  log stream:  retriever-attrs-v4-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -102,11 +102,11 @@
     ok    output is blank, as expected
 
 == v5: OpenInference kind, documents as an array attribute of strings on retrieval.documents 
-  log stream:  retriever-attrs-v5-055ee269
+  log stream:  retriever-attrs-v5-055ee859
 
   the request was refused, and the HTTP status was a success anyway:
     spans rejected:  2 of the 2 sent
-    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "02a8cf3c-5840-4fc8-bc94-91a7e12b91b7", "trace_name": "support assistant turn", "field": ["retriever...
+    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "9e6b5252-9de9-4f96-9d30-158c3b3d04a1", "trace_name": "support assistant turn", "field": ["retriever...
 
   spans the log stream holds after 20s:  <none>
 
@@ -116,7 +116,7 @@
     ok    the healthy parent span did not land either
 
 == v6: no OpenInference kind, message lists on the gen_ai.* attributes, documents as the content 
-  log stream:  retriever-attrs-v6-055ee269
+  log stream:  retriever-attrs-v6-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -146,7 +146,7 @@
     ok    output carries the documents
 
 == v7: as v6 but typed explicitly with gen_ai.operation.name instead of db.operation 
-  log stream:  retriever-attrs-v7-055ee269
+  log stream:  retriever-attrs-v7-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -176,11 +176,11 @@
     ok    output carries the documents
 
 == v8: no OpenInference kind, but the query and documents sent the way v1 sends them 
-  log stream:  retriever-attrs-v8-055ee269
+  log stream:  retriever-attrs-v8-055ee859
 
   the request was refused, and the HTTP status was a success anyway:
     spans rejected:  2 of the 2 sent
-    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "b8515bce-ec08-4070-967f-73ec1db92524", "trace_name": "support assistant turn", "field": ["retriever...
+    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "73c7e3b1-85a6-42b8-afe5-b9f2586f3227", "trace_name": "support assistant turn", "field": ["retriever...
 
   spans the log stream holds after 20s:  <none>
 
@@ -190,7 +190,7 @@
     ok    the healthy parent span did not land either
 
 == v9: as v2 but each document carries its id inside metadata ==================
-  log stream:  retriever-attrs-v9-055ee269
+  log stream:  retriever-attrs-v9-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -224,7 +224,7 @@
     ok    output carries the documents
 
 == v10: as v6 but each document carries its id inside metadata =================
-  log stream:  retriever-attrs-v10-055ee269
+  log stream:  retriever-attrs-v10-055ee859
 
   what was stored on the retriever span:
     type   :  retriever
@@ -269,4 +269,4 @@
   v9  PASS  documents stored   as v2 but each document carries its id inside metadata
   v10  PASS  documents stored   as v6 but each document carries its id inside metadata
 
-  project retriever-span-attributes, log streams suffixed -055ee269
+  project retriever-span-attributes, log streams suffixed -055ee859
