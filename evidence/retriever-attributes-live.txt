@@ -1,6 +1,6 @@
 
 == v1: as reported: OpenInference kind, with the query and documents on the gen_ai.* attributes 
-  log stream:  retriever-attrs-v1-055ededb
+  log stream:  retriever-attrs-v1-055ee0bf
 
   what was stored on the retriever span:
     type   :  retriever
@@ -13,7 +13,7 @@
     ok    output is blank, as expected
 
 == v2: OpenInference kind, query and documents on input.value and output.value =
-  log stream:  retriever-attrs-v2-055ededb
+  log stream:  retriever-attrs-v2-055ee0bf
 
   what was stored on the retriever span:
     type   :  retriever
@@ -26,7 +26,7 @@
     ok    output carries the documents
 
 == v3: OpenInference kind, output.value wrapping the list under a documents key 
-  log stream:  retriever-attrs-v3-055ededb
+  log stream:  retriever-attrs-v3-055ee0bf
 
   what was stored on the retriever span:
     type   :  retriever
@@ -39,7 +39,7 @@
     ok    output carries the documents
 
 == v4: OpenInference kind, documents as a JSON string on retrieval.documents ===
-  log stream:  retriever-attrs-v4-055ededb
+  log stream:  retriever-attrs-v4-055ee0bf
 
   what was stored on the retriever span:
     type   :  retriever
@@ -52,11 +52,11 @@
     ok    output is blank, as expected
 
 == v5: OpenInference kind, documents as an array attribute of strings on retrieval.documents 
-  log stream:  retriever-attrs-v5-055ededb
+  log stream:  retriever-attrs-v5-055ee0bf
 
   the request was refused, and the HTTP status was a success anyway:
     spans rejected:  2 of the 2 sent
-    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "25664acf-02a5-43e2-b351-fe5e4bf21c32", "trace_name": "support assistant turn", "field": ["retriever...
+    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "4cd0c66b-6e6a-46ba-b885-20ba9a2dad7e", "trace_name": "support assistant turn", "field": ["retriever...
 
   spans the log stream holds after 20s:  <none>
 
@@ -66,7 +66,7 @@
     ok    the healthy parent span did not land either
 
 == v6: no OpenInference kind, message lists on the gen_ai.* attributes, documents as the content 
-  log stream:  retriever-attrs-v6-055ededb
+  log stream:  retriever-attrs-v6-055ee0bf
 
   what was stored on the retriever span:
     type   :  retriever
@@ -79,7 +79,7 @@
     ok    output carries the documents
 
 == v7: as v6 but typed explicitly with gen_ai.operation.name instead of db.operation 
-  log stream:  retriever-attrs-v7-055ededb
+  log stream:  retriever-attrs-v7-055ee0bf
 
   what was stored on the retriever span:
     type   :  retriever
@@ -92,11 +92,11 @@
     ok    output carries the documents
 
 == v8: no OpenInference kind, but the query and documents sent the way v1 sends them 
-  log stream:  retriever-attrs-v8-055ededb
+  log stream:  retriever-attrs-v8-055ee0bf
 
   the request was refused, and the HTTP status was a success anyway:
     spans rejected:  2 of the 2 sent
-    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "757aaa1e-6dad-499d-adcd-f24475ec13c2", "trace_name": "support assistant turn", "field": ["retriever...
+    reason given  :  Group 0: Validation error converting trace dict to Trace model: {"trace_id": "19321340-e593-4758-a540-12a984e957e5", "trace_name": "support assistant turn", "field": ["retriever...
 
   spans the log stream holds after 20s:  <none>
 
@@ -104,6 +104,19 @@
     ok    the refusal names the offending field
     ok    the retriever span did not land
     ok    the healthy parent span did not land either
+
+== v9: as v2 but each document carries its id inside metadata ==================
+  log stream:  retriever-attrs-v9-055ee0bf
+
+  what was stored on the retriever span:
+    type   :  retriever
+    input  :  How do I reset my password?
+    output :  [{"content":"A password reset can be started from the account settings page","metadata":{"id"...
+
+    ok    nothing in the export request was refused
+    ok    span is typed as a retriever
+    ok    input carries the query
+    ok    output carries the documents
 
 == SUMMARY =====================================================================
   v1  PASS  nothing stored     as reported: OpenInference kind, with the query and documents on the gen_ai.* attributes
@@ -114,5 +127,6 @@
   v6  PASS  documents stored   no OpenInference kind, message lists on the gen_ai.* attributes, documents as the content
   v7  PASS  documents stored   as v6 but typed explicitly with gen_ai.operation.name instead of db.operation
   v8  PASS  request rejected   no OpenInference kind, but the query and documents sent the way v1 sends them
+  v9  PASS  documents stored   as v2 but each document carries its id inside metadata
 
-  project retriever-span-attributes, log streams suffixed -055ededb
+  project retriever-span-attributes, log streams suffixed -055ee0bf

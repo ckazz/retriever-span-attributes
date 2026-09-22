@@ -2,7 +2,7 @@
 
 A retrieval span can be described in more than one attribute convention, and the conventions are not
 interchangeable. This repo settles which ones a deployment actually reads, by sending the same
-retrieval eight different ways over OpenTelemetry and reading back what was stored for each.
+retrieval nine different ways over OpenTelemetry and reading back what was stored for each.
 
 It exists because the documented minimum for a retriever span can be satisfied in a way that still
 produces an empty span, with nothing in the response to say so.
@@ -25,9 +25,11 @@ Two further constraints apply whichever convention is used:
   JSON-encoded array of objects, each with a `role` and a `content`. A bare query string is not a
   message list, and an object with no `role` is skipped, so a list of plain document objects reduces
   to nothing.
-- A retriever span's output has to be a list of document objects. Document text goes in `content`,
-  and anything other than `content`, `page_content` and `metadata` is dropped, so an application's
-  own document id has to travel in `metadata` to survive.
+- A retriever span's output has to be a list of document objects. Document text goes in `content`
+  (`page_content` is accepted as an alias), and anything other than those and `metadata` is dropped,
+  so an application's own document id has to travel in `metadata` to survive. Inside `metadata`, only
+  scalar values are kept: strings, numbers and booleans survive, and anything nested is discarded
+  without an error. So a relevance score is fine as a number, but a nested object is not.
 
 ## Three outcomes, and the third one is quiet
 
@@ -54,6 +56,7 @@ span nested under it. Only the retrieval span's attributes differ.
 | v6 | no OpenInference kind, `gen_ai.*` message lists with the documents as the content | the query | the documents |
 | v7 | as v6, typed with `gen_ai.operation.name` instead of `db.operation` | the query | the documents |
 | v8 | no OpenInference kind, values shaped as in v1 | request rejected | request rejected |
+| v9 | as v2, with each document's id inside `metadata` | the query | the documents, ids intact |
 
 A rendered run is committed under `evidence/`, so the results can be read without a deployment to
 hand.
@@ -62,7 +65,7 @@ hand.
 
 Two shapes work, and either is fine to standardise on:
 
-- **Stay on OpenInference** (v2 or v3). Put the query in `input.value` and the documents in
+- **Stay on OpenInference** (v2, v3 or v9). Put the query in `input.value` and the documents in
   `output.value` as a JSON array, or as an object with a `documents` key. `retrieval.documents` is
   read only when it arrives as a genuine list, and an OpenTelemetry array attribute can hold only
   plain strings, never objects, which is why v4 lands empty and v5 is refused outright.

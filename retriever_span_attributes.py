@@ -49,6 +49,10 @@ DOCUMENTS = [
     {"id": "doc2", "content": "The reset link expires after fifteen minutes and can be requested again"},
 ]
 
+# A stored document keeps only content, page_content and metadata, so an application's
+# own id is dropped from the top level and has to travel inside metadata to survive.
+DOCUMENTS_WITH_METADATA = [{"content": d["content"], "metadata": {"id": d["id"]}} for d in DOCUMENTS]
+
 # Each variant differs only in the attributes on the retriever span. The parent
 # agent span is identical everywhere so the retrieval always sits in the same
 # place in the tree.
@@ -160,6 +164,18 @@ VARIANTS: dict[str, dict[str, Any]] = {
             "isolates the OpenInference kind: the same value shapes are not merely ignored without "
             "it, they cost the whole export request"
         ),
+    },
+    "v9": {
+        "summary": "as v2 but each document carries its id inside metadata",
+        "attributes": {
+            "db.operation": "query",
+            "openinference.span.kind": "retriever",
+            "input.value": QUERY,
+            "output.value": json.dumps(DOCUMENTS_WITH_METADATA),
+        },
+        "expect_input": QUERY,
+        "expect_output": "doc1",
+        "why": "metadata is one of the three fields a document keeps, so it is where an id survives",
     },
 }
 
